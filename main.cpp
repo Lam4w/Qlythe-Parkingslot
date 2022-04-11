@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <vector>
 #include <time.h>
-//#include "BTL.h"
 using namespace std;
 
 vector<string> ids;
@@ -163,13 +162,35 @@ public:
         }
         return false;
     }
+
+     static string createID() // tao id the moi
+    {
+        int temp = (rand() % (999 - 1 + 1)) + 1;
+       string ticketId = to_string(temp);
+
+        while (checkID(ticketId, ids) && ids.size() > 0)
+        {
+            temp = (rand() % (999 - 1 + 1)) + 1;
+            ticketId = to_string(temp);
+        }
+        ids.push_back(ticketId);
+        return ticketId;
+    }
+    string getticketNumber()
+    {
+        return this->ticketNumber;
+    }
+    void setticketNumber(string ticketNumber)
+    {
+        this->ticketNumber = ticketNumber;
+    }
     string getticketid()
     {
         return this->ticketId;
     }
-    void setticketId(int ticketId)
+    void setticketId(string ticketIdString)
     {
-        this->ticketId = ticketId;
+        this->ticketId = ticketIdString;
     }
     string getlicenseNumber()
     {
@@ -213,6 +234,11 @@ public:
         }
         while (checkID(id, ids) == true);
         ids.push_back(id);
+        this->setticketId(id);
+        cout << "Nhap so ve xe: ";
+        cin >> ticketNumber;
+        cin.ignore(1);
+        this->setticketNumber(ticketNumber);
         cout << "Nhap bien so xe: ";
         cin>>licenseNumber;
         cin.ignore(1);
@@ -273,12 +299,12 @@ public:
     {
         return this->status;
     }
-    void settrue()  //khong tra ve gia tri thi dat bool??
+    void settrue()
     {
         this->statusthe = true;
         cout << "The da duoc mo. \n";
     }
-    void setfalse() //Tuong tu nhu tren
+    void setfalse()
     {
         this->statusthe = false;
         cout << "The da dc khoa. \n";
@@ -333,6 +359,7 @@ void ra()
     if (!ParkingTicket::checkID(Id, ids))
     {
         cout << "ID cua the khong ton tai. \n";
+        b.in();
     }
     else if (logs.size() > 0)
     {
@@ -340,7 +367,7 @@ void ra()
         for (int i = 0; i <= logs.size(); i++)
         {
 
-            if (Id == logs[i].getID() && logs[i].getstatusthe() == false)
+            if (Id == ids[i] && logs[i].getstatusthe() == false)
             {
                 cout << "The da bi khoa.\n";
                 cout << "Press Enter to Continue \n";
@@ -348,7 +375,7 @@ void ra()
                 return;
             }
 
-            if (Id == logs[i].getID() && logs[i].getStatus() == false && logs[i].getstatusthe() == true && biensoxe == logs[i].getLicensenum())
+            if (Id == ids[i] && logs[i].getStatus() == false && logs[i].getstatusthe() == true && biensoxe == logs[i].getLicensenum())
             {
                 logs[i].diRa();
                 cout << "The da duoc mo. \n";
@@ -357,8 +384,7 @@ void ra()
                 return;
             }
             {
-                ids.erase(ids.begin() + i);
-                logs.erase(logs.begin() + i);
+
                 logs[i].diRa();
                 b.settrue();
                 b.in();
@@ -392,20 +418,19 @@ void vao()
     b.in();
     logs.push_back(Logs(parkingticket, currentDateTime()));
     cout << "Xac nhan xe di vao.\n";
-
     cout << "Press Enter to Continue \n";
     cin.ignore();
+
 }
 
 void danhsach()
 {
     cout << "ID ve xe\t\\Bien so xe\t\tGio vao\t\t\t\t\t\t\\Gio ra\n";
-    for (Logs i : logs)
+    for (int i = 0; i < logs.size(); i++)
     {
-        cout << i.getID() << "\t\t" << i.getLicensenum() << "\t\t\t" << i.getTimeVao() << "\t\t\t" << i.getTimeRa() << endl;
+         cout << ids[i] << "\t\t" << dstheravao[i].licenseNumber << "\t\t" << logs[i].getTimeVao() << "\t\t\t\t\t\t" << logs[i].getTimeRa() << endl;
     }
-    cout << "Press Enter to Continue";
-    cin.ignore();
+
 }
 
 void capnhap()
@@ -421,7 +446,7 @@ void capnhap()
     {
         for (int i = 0; i <= logs.size(); ++i)
         {
-            if (Id == logs[i].getID())
+            if (Id == ids[i])
             {
                 if (logs[i].getstatusthe() == true)
                 {
@@ -434,8 +459,7 @@ void capnhap()
             }
         }
     }
-    cout << "Press Enter to Continue \n";
-    cin.ignore();
+
 };
 
 //Kiem soat dieu khien ra vao
@@ -462,7 +486,7 @@ int main()
 {
     ioReport IRT;
     int total = 0;
-    int input;
+    string input;
     while (true)
     {
         cout << "1- Xe Ra \n";
@@ -470,38 +494,48 @@ int main()
         cout << "3- cap nhap trang thai the\n";
         cout << "4- Xe vao\n";
         cout << "5- Thong ke\n";
-        cout << "6- In Tong Doanh Thu\n";
-        cout << "7- Thoat\n";
+        cout << "6- Thoat\n";
+        cout << "7- In Tong Doanh Thu\n";
         cin >> input;
-        cin.ignore(1);
-
-        switch (input)
+       while (input != "1" && input != "2" && input != "3" && input != "4" && input != "5" && input != "6" && input != "7")
         {
-        case 1:
+            cout << "Nhap sai. Nhap lai: ";
+            cin >> input;
+        }
+        if (input == "1") {
             ra();
             IRT.CarOut++;
             IRT.remainingCar--;
-            break;
-        case 2:
+        }
+        else if (input == "2")
+        {
             danhsach();
-            break;
-        case 3:
+        }
+        else if (input == "3")
+        {
             capnhap();
-            break;
-        case 4:
+        }
+        else if (input == "4")
+        {
             vao();
             IRT.carIn++;
-            break;
-        case 5:
+        }
+        else if (input == "5")
+        {
             IRT.checkRemain(dstheravao);
             IRT.statusReport();
-            break;
-        case 6:
-            cout<<"Tong doanh thu :"<<Revenue::getRevenue()<<endl<<endl;
-            break;
+        }
+        else if (input == "6")
+        {
+            return 0;
+        }
+        else if (input == "7")
+        {
+            cout << "Tong doanh thu: " << Revenue::getRevenue()<<endl << endl;
         }
 
-    if(input == 7)
-        break;
+        cin.ignore(1);
+
+
     }
 }
